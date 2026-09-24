@@ -1,0 +1,5 @@
+.\build\debug\mapboard.exe 2 run
+& "C:\raylib\w64devkit\bin\make.exe" -j4 2 compile
+
+need to do this slop everytime, fix later.
+$env:MAPTILER_KEY="YOUR_API_KEY"
