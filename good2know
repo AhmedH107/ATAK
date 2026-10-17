@@ -3,3 +3,9 @@
 
 need to do this slop everytime, fix later.
 $env:MAPTILER_KEY="YOUR_API_KEY"
+
+to open msys64 in terminal
+C:\msys64\ucrt64.exe
+
+$env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
+

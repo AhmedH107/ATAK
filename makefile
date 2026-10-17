@@ -2,7 +2,7 @@
 SHELL := cmd.exe
 .SHELLFLAGS := /C
 
-CC := C:/raylib/w64devkit/bin/gcc.exe
+CC := C:/msys64/ucrt64/bin/gcc.exe
 
 SRC_DIR := src
 SQLITE_DIR := third_party/sqlite
@@ -47,6 +47,7 @@ CPPFLAGS := \
 	-I$(SRC_DIR) \
 	-I$(SQLITE_DIR) \
 	-I$(RAYLIB_DIR) \
+	-IC:/msys64/ucrt64/include \
 	-DSQLITE_THREADSAFE=1
 
 COMMON_FLAGS := \
@@ -68,10 +69,13 @@ SQLITE_FLAGS := \
 # Linker flags
 # ------------------------------------------------------------
 
-LDFLAGS := -L$(RAYLIB_DIR)
+LDFLAGS := \
+	-L$(RAYLIB_DIR) \
+	-LC:/msys64/ucrt64/lib
 
 LDLIBS := \
 	-lraylib \
+	-lcurl \
 	-lopengl32 \
 	-lgdi32 \
 	-lwinmm

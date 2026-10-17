@@ -144,13 +144,6 @@ int main(void)
             &tile_db,
             api_key);
 
-        TileManagerUpdate(
-            camera,
-            map_zoom,
-            &tile_db,
-            api_key);
-
-        BeginDrawing();
         ClearBackground(BLACK);
 
         BeginMode2D(camera);
