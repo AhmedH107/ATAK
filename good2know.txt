@@ -1,0 +1,27 @@
+.\build\debug\mapboard.exe 2 run
+& "C:\raylib\w64devkit\bin\make.exe" -j4 2 compile
+
+need to do this slop everytime, fix later.
+$env:MAPTILER_KEY="YOUR_API_KEY"
+
+to open msys64 in terminal
+C:\msys64\ucrt64.exe
+
+$env:PATH = "C:\msys64\ucrt64\bin;$env:PATH"
+
+REMEMBER ----------------------------------------
+did this
+mkdir C:\Temp
+
+tile_manager.c
+├── decides which tiles are needed
+├── checks SQLite
+├── creates Raylib textures
+└── draws/manages GPU cache
+
+tile_network.c
+├── owns libcurl
+├── owns CURLM/CURL handles
+├── owns pending request slots
+├── downloads bytes asynchronously
+└── hands completed PNG bytes back to tile_manager

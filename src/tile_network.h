@@ -3,39 +3,43 @@
 
 #include <stddef.h>
 
-typedef enum
-{
-    TILE_DOWNLOAD_NONE,
-    TILE_DOWNLOAD_ACTIVE,
-    TILE_DOWNLOAD_COMPLETE,
-    TILE_DOWNLOAD_FAILED
-} TileDownloadState;
-
 typedef struct
 {
     int zoom;
     int x;
     int y;
 
-    TileDownloadState state;
-
     unsigned char *data;
     size_t size;
 
-    void *internal_handle;
-} TileDownload;
+} TileDownloadResult;
 
-int TileNetworkInit(void);
+/*
+ * Returns non-zero if this tile already has
+ * an active or completed network request.
+ */
+int TileNetworkIsPending(
+    int zoom,
+    int x,
+    int y);
 
-void TileNetworkShutdown(void);
-
+/*
+ * Queue a tile for asynchronous downloading.
+ *
+ * Returns non-zero if the request is queued
+ * or was already pending.
+ */
 int TileNetworkRequest(
     int zoom,
     int x,
     int y,
-    const char *api_key
-);
+    const char *api_key);
 
 void TileNetworkUpdate(void);
+
+int TileNetworkTakeCompleted(
+    TileDownloadResult *result);
+
+void TileNetworkShutdown(void);
 
 #endif
