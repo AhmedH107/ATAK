@@ -14,6 +14,8 @@
 
 #define DELETE_RADIUS 18.0f
 #define MAX_MARKERS 1024
+#define MIN_MAP_ZOOM 2
+#define MAX_MAP_ZOOM 20
 
 static const Color marker_colors[] = {
     GRAY,
@@ -61,7 +63,7 @@ int main(void)
 
     const double center_lat = 56.8332;
     const double center_lon = 13.9408;
-    const int map_zoom = 14;
+    int map_zoom = 14;
 
     Camera2D camera = {0};
     camera.target = LatLonToWorldPixel(center_lat, center_lon, map_zoom);
@@ -76,19 +78,93 @@ int main(void)
     while (!WindowShouldClose())
     {
         float wheel = GetMouseWheelMove();
+
+        // map_zoom = show what Z tiles.
+        // camera.zoom = fine adjustment per tile
         if (wheel != 0.0f)
         {
-            Vector2 mouse_before = GetScreenToWorld2D(GetMousePosition(), camera);
+            Vector2 mouse =
+                GetMousePosition();
 
-            camera.zoom += wheel * 0.1f;
-            if (camera.zoom < 0.25f)
-                camera.zoom = 0.25f;
-            if (camera.zoom > 4.0f)
-                camera.zoom = 4.0f;
+            // Remember the geographic point currently underneath the mouse.
+            Vector2 mouse_world_before =
+                GetScreenToWorld2D(
+                    mouse,
+                    camera);
 
-            Vector2 mouse_after = GetScreenToWorld2D(GetMousePosition(), camera);
-            camera.target.x += mouse_before.x - mouse_after.x;
-            camera.target.y += mouse_before.y - mouse_after.y;
+            double mouse_lat = 0.0;
+            double mouse_lon = 0.0;
+
+            WorldPixelToLatLon(
+                mouse_world_before,
+                map_zoom,
+                &mouse_lat,
+                &mouse_lon);
+
+            // change zoom here through wheel
+            camera.zoom *=
+                powf(1.15f, wheel);
+
+            /*
+             * One complete 2x enlargement means:
+             *
+             * Z14 -> Z15
+             *
+             * World coordinates double at every
+             * Web Mercator zoom level.
+             */
+            while (camera.zoom >= 2.0f &&
+                   map_zoom < MAX_MAP_ZOOM)
+            {
+                camera.zoom *= 0.5f;
+
+                camera.target.x *= 2.0f;
+                camera.target.y *= 2.0f;
+
+                map_zoom++;
+            }
+
+            while (camera.zoom < 1.0f &&
+                   map_zoom > MIN_MAP_ZOOM)
+            {
+                camera.zoom *= 2.0f;
+
+                camera.target.x *= 0.5f;
+                camera.target.y *= 0.5f;
+
+                map_zoom--;
+            }
+
+            if (map_zoom == MAX_MAP_ZOOM &&
+                camera.zoom > 2.0f)
+            {
+                camera.zoom = 2.0f;
+            }
+
+            if (map_zoom == MIN_MAP_ZOOM &&
+                camera.zoom < 1.0f)
+            {
+                camera.zoom = 1.0f;
+            }
+
+            Vector2 desired_mouse_world =
+                LatLonToWorldPixel(
+                    mouse_lat,
+                    mouse_lon,
+                    map_zoom);
+
+            Vector2 mouse_world_after =
+                GetScreenToWorld2D(
+                    mouse,
+                    camera);
+
+            camera.target.x +=
+                desired_mouse_world.x -
+                mouse_world_after.x;
+
+            camera.target.y +=
+                desired_mouse_world.y -
+                mouse_world_after.y;
         }
 
         if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
